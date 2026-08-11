@@ -74,13 +74,11 @@ The project uses the Titanic passenger dataset.
 ### Target Variable
 
 - `0` — Did not survive
-- `1` — Survived
+- `1` — Survvived
 
----
+- ## Project Structure
 
-
-
-
+```text
 Titanic_Survival_Prediction/
 │
 ├── data/
@@ -189,6 +187,8 @@ The application processes the input and returns the predicted survival outcome.
 
  ---
 
+
+```text
 Titanic Dataset
        ↓
 Data Collection
@@ -211,7 +211,7 @@ Model Training
  │ Logistic Regression           │
  │ Decision Tree                 │
  │ Random Forest                │
- │ Gradient Boosting            │
+ │ Gradient Boosting             │
  └───────────────────────────────┘
        ↓
 Model Evaluation
