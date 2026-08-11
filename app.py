@@ -1,28 +1,7 @@
-import os
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from sklearn.model_selection import train_test_split
-from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
-from sklearn.impute import SimpleImputer
-
-from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
-
-from sklearn.metrics import (
-    accuracy_score,
-    classification_report,
-    confusion_matrix
-)
-
-
-# ============================================================
-# PAGE CONFIGURATION
-# ============================================================
 
 st.set_page_config(
     page_title="Titanic Survival Prediction",
@@ -30,606 +9,325 @@ st.set_page_config(
 )
 
 
-# ============================================================
-# TITLE
-# ============================================================
+# ---------------------------------------------------------
+# Title
+# ---------------------------------------------------------
 
 st.title("Titanic Survival Prediction")
 
 st.write(
-    "This project uses Machine Learning to predict whether "
-    "a Titanic passenger survived based on passenger information."
+    "This project uses passenger information to understand "
+    "Titanic survival patterns and provide a simple survival prediction."
 )
 
-st.divider()
 
+# ---------------------------------------------------------
+# About Titanic
+# ---------------------------------------------------------
 
-# ============================================================
-# ABOUT TITANIC
-# ============================================================
-
-st.subheader("About the Titanic")
+st.header("About the Titanic")
 
 st.write(
     "The RMS Titanic was a British passenger liner operated by "
-    "the White Star Line. During its maiden voyage from Southampton "
-    "to New York in April 1912, the ship struck an iceberg in the "
-    "North Atlantic Ocean and sank."
+    "the White Star Line. During its maiden voyage in April 1912, "
+    "the ship struck an iceberg in the North Atlantic Ocean and sank."
 )
 
 st.write(
-    "This project uses passenger information such as passenger "
-    "class, sex, age, family members, fare and port of embarkation "
-    "to train classification models."
+    "The Titanic dataset is one of the most commonly used datasets "
+    "for learning Data Science and Machine Learning. It contains "
+    "information about passengers such as passenger class, sex, age, "
+    "family members, fare and port of embarkation."
 )
 
-st.divider()
+
+# ---------------------------------------------------------
+# Dataset Information
+# ---------------------------------------------------------
+
+st.header("Dataset Information")
+
+dataset_info = pd.DataFrame(
+    {
+        "Feature": [
+            "Pclass",
+            "Sex",
+            "Age",
+            "SibSp",
+            "Parch",
+            "Fare",
+            "Embarked",
+            "Survived"
+        ],
+        "Description": [
+            "Passenger class",
+            "Passenger gender",
+            "Passenger age",
+            "Number of siblings or spouses",
+            "Number of parents or children",
+            "Passenger fare",
+            "Port of embarkation",
+            "Target variable"
+        ]
+    }
+)
+
+st.dataframe(
+    dataset_info,
+    use_container_width=True,
+    hide_index=True
+)
 
 
-# ============================================================
-# LOAD DATASET
-# ============================================================
+# ---------------------------------------------------------
+# Exploratory Data Analysis
+# ---------------------------------------------------------
 
-@st.cache_data
-def load_data():
+st.header("Exploratory Data Analysis")
 
-    possible_paths = [
-        "data/train.csv",
-        "./data/train.csv",
-        "train.csv",
-        "./train.csv"
-    ]
-
-    for path in possible_paths:
-
-        if os.path.exists(path):
-
-            try:
-                data = pd.read_csv(path)
-
-                if not data.empty:
-                    return data
-
-            except Exception:
-                pass
-
-    return None
+st.write(
+    "The following graphs show some important patterns "
+    "in the Titanic passenger data."
+)
 
 
-df = load_data()
+# ---------------------------------------------------------
+# Survival Distribution
+# ---------------------------------------------------------
+
+st.subheader("Survival Distribution")
+
+survival_data = pd.DataFrame(
+    {
+        "Status": [
+            "Did Not Survive",
+            "Survived"
+        ],
+        "Passengers": [
+            549,
+            342
+        ]
+    }
+)
+
+fig1, ax1 = plt.subplots(figsize=(7, 4))
+
+ax1.bar(
+    survival_data["Status"],
+    survival_data["Passengers"]
+)
+
+ax1.set_xlabel("Survival Status")
+ax1.set_ylabel("Number of Passengers")
+ax1.set_title("Survival Distribution")
+
+plt.tight_layout()
+
+st.pyplot(fig1)
 
 
-# ============================================================
-# DATASET ERROR HANDLING
-# ============================================================
+# ---------------------------------------------------------
+# Survival by Gender
+# ---------------------------------------------------------
 
-if df is None:
+st.subheader("Survival by Gender")
 
-    st.error(
-        "Titanic dataset could not be found. "
-        "Please make sure train.csv is inside the data folder."
-    )
+gender_data = pd.DataFrame(
+    {
+        "Gender": ["Female", "Male"],
+        "Survived": [233, 109],
+        "Did Not Survive": [81, 468]
+    }
+)
 
-    st.stop()
+fig2, ax2 = plt.subplots(figsize=(7, 4))
+
+x = range(len(gender_data))
+
+ax2.bar(
+    x,
+    gender_data["Survived"],
+    label="Survived"
+)
+
+ax2.bar(
+    x,
+    gender_data["Did Not Survive"],
+    bottom=gender_data["Survived"],
+    label="Did Not Survive"
+)
+
+ax2.set_xticks(list(x))
+ax2.set_xticklabels(gender_data["Gender"])
+
+ax2.set_xlabel("Gender")
+ax2.set_ylabel("Number of Passengers")
+ax2.set_title("Survival by Gender")
+
+ax2.legend()
+
+plt.tight_layout()
+
+st.pyplot(fig2)
 
 
-# ============================================================
-# DATASET OVERVIEW
-# ============================================================
+# ---------------------------------------------------------
+# Key Findings
+# ---------------------------------------------------------
 
-st.subheader("Dataset Overview")
+st.header("Key Findings")
 
-col1, col2, col3 = st.columns(3)
+st.write(
+    "• The number of passengers who did not survive was higher "
+    "than the number of passengers who survived."
+)
+
+st.write(
+    "• Female passengers had a considerably higher survival "
+    "rate than male passengers."
+)
+
+st.write(
+    "• Passenger class and gender were important factors "
+    "associated with survival."
+)
+
+
+# ---------------------------------------------------------
+# Survival Prediction
+# ---------------------------------------------------------
+
+st.header("Survival Prediction")
+
+st.write(
+    "Enter passenger details below to get a simple survival prediction."
+)
+
+col1, col2 = st.columns(2)
 
 with col1:
-    st.metric(
-        "Total Rows",
-        df.shape[0]
-    )
-
-with col2:
-    st.metric(
-        "Total Columns",
-        df.shape[1]
-    )
-
-with col3:
-    st.metric(
-        "Missing Values",
-        int(df.isnull().sum().sum())
-    )
-
-
-with st.expander("View Dataset"):
-
-    st.dataframe(
-        df.head(20),
-        use_container_width=True
-    )
-
-
-# ============================================================
-# FEATURES
-# ============================================================
-
-features = [
-    "pclass",
-    "sex",
-    "age",
-    "sibsp",
-    "parch",
-    "fare",
-    "embarked"
-]
-
-target = "survived"
-
-
-# ============================================================
-# CHECK REQUIRED COLUMNS
-# ============================================================
-
-missing_columns = [
-    column
-    for column in features + [target]
-    if column not in df.columns
-]
-
-if missing_columns:
-
-    st.error(
-        f"Required columns are missing: {missing_columns}"
-    )
-
-    st.stop()
-
-
-# ============================================================
-# DATA PREPARATION
-# ============================================================
-
-X = df[features].copy()
-
-y = df[target].copy()
-
-
-# Remove rows where target is missing
-
-valid_rows = y.notna()
-
-X = X.loc[valid_rows]
-
-y = y.loc[valid_rows]
-
-
-# ============================================================
-# NUMERIC AND CATEGORICAL FEATURES
-# ============================================================
-
-numeric_features = [
-    "pclass",
-    "age",
-    "sibsp",
-    "parch",
-    "fare"
-]
-
-categorical_features = [
-    "sex",
-    "embarked"
-]
-
-
-# ============================================================
-# PREPROCESSING
-# ============================================================
-
-numeric_pipeline = Pipeline(
-    steps=[
-        (
-            "imputer",
-            SimpleImputer(
-                strategy="median"
-            )
-        ),
-        (
-            "scaler",
-            StandardScaler()
-        )
-    ]
-)
-
-
-categorical_pipeline = Pipeline(
-    steps=[
-        (
-            "imputer",
-            SimpleImputer(
-                strategy="most_frequent"
-            )
-        ),
-        (
-            "encoder",
-            OneHotEncoder(
-                handle_unknown="ignore"
-            )
-        )
-    ]
-)
-
-
-preprocessor = ColumnTransformer(
-    transformers=[
-        (
-            "numeric",
-            numeric_pipeline,
-            numeric_features
-        ),
-        (
-            "categorical",
-            categorical_pipeline,
-            categorical_features
-        )
-    ]
-)
-
-
-# ============================================================
-# TRAIN TEST SPLIT
-# ============================================================
-
-X_train, X_test, y_train, y_test = train_test_split(
-    X,
-    y,
-    test_size=0.20,
-    random_state=42,
-    stratify=y
-)
-
-
-# ============================================================
-# MACHINE LEARNING MODELS
-# ============================================================
-
-models = {
-
-    "Logistic Regression":
-        LogisticRegression(
-            max_iter=1000
-        ),
-
-    "Decision Tree":
-        DecisionTreeClassifier(
-            max_depth=5,
-            random_state=42
-        ),
-
-    "Random Forest":
-        RandomForestClassifier(
-            n_estimators=200,
-            max_depth=8,
-            random_state=42
-        ),
-
-    "Gradient Boosting":
-        GradientBoostingClassifier(
-            n_estimators=150,
-            learning_rate=0.05,
-            max_depth=3,
-            random_state=42
-        )
-}
-
-
-# ============================================================
-# TRAIN MODELS
-# ============================================================
-
-trained_models = {}
-
-model_scores = {}
-
-
-for model_name, model in models.items():
-
-    pipeline = Pipeline(
-        steps=[
-            (
-                "preprocessing",
-                preprocessor
-            ),
-            (
-                "model",
-                model
-            )
-        ]
-    )
-
-    pipeline.fit(
-        X_train,
-        y_train
-    )
-
-    predictions = pipeline.predict(
-        X_test
-    )
-
-    accuracy = accuracy_score(
-        y_test,
-        predictions
-    )
-
-    trained_models[model_name] = pipeline
-
-    model_scores[model_name] = accuracy
-
-
-# ============================================================
-# BEST MODEL
-# ============================================================
-
-best_model_name = max(
-    model_scores,
-    key=model_scores.get
-)
-
-best_model = trained_models[
-    best_model_name
-]
-
-best_accuracy = model_scores[
-    best_model_name
-]
-
-
-# ============================================================
-# PASSENGER PREDICTION
-# ============================================================
-
-st.divider()
-
-st.header("Predict Passenger Survival")
-
-st.write(
-    "Enter passenger information below. "
-    "The best-performing model will generate the prediction."
-)
-
-
-with st.form("prediction_form"):
 
     passenger_class = st.selectbox(
         "Passenger Class",
         [1, 2, 3]
     )
 
-    age = st.number_input(
-        "Age",
-        min_value=0.0,
-        max_value=100.0,
-        value=25.0,
-        step=1.0
+    sex = st.selectbox(
+        "Sex",
+        ["Female", "Male"]
     )
 
+    age = st.number_input(
+        "Age",
+        min_value=0,
+        max_value=100,
+        value=25
+    )
+
+
+with col2:
+
     siblings = st.number_input(
-        "Number of Siblings/Spouses",
+        "Siblings / Spouses",
         min_value=0,
         max_value=10,
-        value=0,
-        step=1
+        value=0
     )
 
     parents_children = st.number_input(
-        "Number of Parents/Children",
+        "Parents / Children",
         min_value=0,
         max_value=10,
-        value=0,
-        step=1
+        value=0
     )
 
     fare = st.number_input(
         "Fare",
         min_value=0.0,
-        max_value=600.0,
-        value=30.0,
-        step=1.0
-    )
-
-    sex = st.selectbox(
-        "Sex",
-        [
-            "female",
-            "male"
-        ]
-    )
-
-    embarked = st.selectbox(
-        "Port of Embarkation",
-        [
-            "S",
-            "C",
-            "Q"
-        ]
-    )
-
-    predict_button = st.form_submit_button(
-        "Predict Survival",
-        use_container_width=True
+        value=30.0
     )
 
 
-# ============================================================
-# PREDICTION RESULT
-# ============================================================
+# ---------------------------------------------------------
+# Simple Prediction Logic
+# ---------------------------------------------------------
 
-if predict_button:
+if st.button("Predict Survival"):
 
-    input_data = pd.DataFrame(
-        {
-            "pclass": [passenger_class],
-            "sex": [sex],
-            "age": [age],
-            "sibsp": [siblings],
-            "parch": [parents_children],
-            "fare": [fare],
-            "embarked": [embarked]
-        }
-    )
+    score = 0
 
-    prediction = best_model.predict(
-        input_data
-    )[0]
+    # Gender was one of the strongest survival patterns
+    if sex == "Female":
+        score += 3
+    else:
+        score -= 2
 
-    probabilities = best_model.predict_proba(
-        input_data
-    )[0]
+    # Passenger class
+    if passenger_class == 1:
+        score += 2
+    elif passenger_class == 2:
+        score += 1
+    else:
+        score -= 1
 
-    survival_probability = probabilities[1] * 100
+    # Age
+    if age <= 15:
+        score += 1
+    elif age >= 60:
+        score -= 1
 
-    if prediction == 1:
+    # Fare gives a small indication of passenger class
+    if fare >= 50:
+        score += 1
+
+    # Family size
+    family_size = siblings + parents_children
+
+    if 1 <= family_size <= 3:
+        score += 1
+    elif family_size >= 6:
+        score -= 1
+
+    if score >= 2:
 
         st.success(
-            f"Prediction: SURVIVED | "
-            f"Survival Probability: "
-            f"{survival_probability:.2f}%"
+            "Prediction: Passenger is likely to survive."
         )
 
     else:
 
         st.error(
-            f"Prediction: DID NOT SURVIVE | "
-            f"Survival Probability: "
-            f"{survival_probability:.2f}%"
+            "Prediction: Passenger is likely not to survive."
         )
 
+    st.write(
+        "This prediction is an educational baseline based on "
+        "patterns commonly observed in the Titanic dataset."
+    )
 
-# ============================================================
-# MODEL PERFORMANCE
-# ============================================================
+
+# ---------------------------------------------------------
+# Conclusion
+# ---------------------------------------------------------
+
+st.header("Conclusion")
+
+st.write(
+    "The Titanic dataset demonstrates how passenger characteristics "
+    "can be used to study survival patterns. Gender, passenger class "
+    "and age provide useful information for understanding survival outcomes."
+)
+
+
+# ---------------------------------------------------------
+# Author
+# ---------------------------------------------------------
 
 st.divider()
 
-st.subheader("Model Performance")
+st.header("Author")
 
-
-results = pd.DataFrame(
-    {
-        "Model": list(
-            model_scores.keys()
-        ),
-        "Accuracy (%)": [
-            round(
-                score * 100,
-                2
-            )
-            for score in model_scores.values()
-        ]
-    }
+st.write("Naina Kumari")
+st.write(
+    "Data Science Undergraduate | Machine Learning Enthusiast | Data Analyst"
 )
-
-
-st.dataframe(
-    results,
-    use_container_width=True,
-    hide_index=True
-)
-
-
-st.success(
-    f"Best Model: {best_model_name} | "
-    f"Accuracy: {best_accuracy * 100:.2f}%"
-)
-
-
-# ============================================================
-# ACCURACY CHART
-# ============================================================
-
-st.subheader("Model Accuracy Comparison")
-
-
-fig, ax = plt.subplots(
-    figsize=(9, 4)
-)
-
-ax.bar(
-    results["Model"],
-    results["Accuracy (%)"]
-)
-
-ax.set_xlabel(
-    "Machine Learning Model"
-)
-
-ax.set_ylabel(
-    "Accuracy (%)"
-)
-
-ax.set_title(
-    "Titanic Survival Model Accuracy"
-)
-
-plt.xticks(
-    rotation=15,
-    ha="right"
-)
-
-plt.tight_layout()
-
-st.pyplot(fig)
-
-
-# ============================================================
-# CONFUSION MATRIX
-# ============================================================
-
-st.subheader("Confusion Matrix")
-
-
-best_predictions = best_model.predict(
-    X_test
-)
-
-cm = confusion_matrix(
-    y_test,
-    best_predictions
-)
-
-
-fig2, ax2 = plt.subplots(
-    figsize=(6, 5)
-)
-
-ax2.imshow(cm)
-
-ax2.set_title(
-    f"Confusion Matrix - {best_model_name}"
-)
-
-ax2.set_xlabel(
-    "Predicted"
-)
-
-ax2.set_ylabel(
-    "Actual"
-)
-
-ax2.set_xticks(
-    [0, 1]
-)
-
-ax2.set_yticks(
-    [0, 1]
-)
-
-ax2.set_xticklabels(
-    [
-        "Not Survived",
-        "Survived"
-    ]
-)
-
-ax2.set_yticklabels(
-    [
-        "Not Survived",
-        "Survived"])
