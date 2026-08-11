@@ -76,7 +76,7 @@ The project uses the Titanic passenger dataset.
 - `0` — Did not survive
 - `1` — Survvived
 
-- ## Project Structure
+## Project Structure
 
 ```text
 Titanic_Survival_Prediction/
@@ -97,50 +97,66 @@ Titanic_Survival_Prediction/
 ├── model.pkl
 ├── requirements.txt
 └── README.md
----
-
+```
 
 ## Exploratory Data Analysis
 
-Exploratory Data Analysis was performed to understand passenger characteristics and identify patterns associated with survival.
+Exploratory Data Analysis was performed to understand passenger characteristics and identify patterns related to survival.
 
 ### Survival Distribution
 
-![Survival Distribution](survival_distribution.png)
+![Survival Distribution](images/survival_distribution.png)
 
 ### Survival by Gender
 
-![Survival by Gender](survival_gender.png)
+![Survival by Gender](images/survival_gender.png)
 
 ### Survival by Passenger Class
 
-![Survival by Passenger Class](survival_class.png)
+![Survival by Passenger Class](images/survival_class.png)
 
-### Key Findings
+## Key Findings
 
-- Survival rates differed significantly between male and female passengers.
-- Passenger class showed a strong relationship with survival outcomes.
+- Female passengers had a higher survival rate than male passengers.
+- Passenger class had a strong relationship with survival.
+- First-class passengers generally had better survival outcomes than lower-class passengers.
+- Age, family size and fare also contributed to the prediction of survival.
 - The dataset contained more passengers who did not survive than passengers who survived.
-
----
 
 ## Machine Learning Models
 
-Two classification algorithms were implemented and evaluated.
+The following classification models were implemented and compared:
 
 ### Logistic Regression
 
-Logistic Regression was used as a baseline classification model because of its simplicity and interpretability.
+Used as a baseline classification model because it is simple and easy to interpret.
 
-### Random Forest Classifier
+### Decision Tree
 
-Random Forest was implemented as an ensemble learning approach capable of capturing nonlinear relationships between passenger characteristics and survival.
+Used to capture decision-based relationships between passenger features and survival.
 
----
+### Random Forest
+
+An ensemble learning model that combines multiple decision trees to improve prediction performance.
+
+### Gradient Boosting
+
+An ensemble technique that builds models sequentially to improve prediction accuracy.
+
+## Data Preprocessing
+
+The following preprocessing steps were applied:
+
+- Missing value handling
+- Numerical feature scaling
+- Categorical feature encoding
+- Train-test split
+
+A Scikit-learn preprocessing pipeline was used to keep the preprocessing and model training consistent.
 
 ## Model Evaluation
 
-The models were evaluated using the following metrics:
+The models were evaluated using:
 
 - Accuracy
 - Precision
@@ -148,21 +164,13 @@ The models were evaluated using the following metrics:
 - F1-Score
 - Confusion Matrix
 
-### Random Forest Confusion Matrix
-
-![Random Forest Confusion Matrix](random_forest_cm.png)
-
-### Logistic Regression Confusion Matrix
-
-![Logistic Regression Confusion Matrix](logistic_regression_cm.png)
-
----
+Model accuracy was compared to identify the best-performing classification model.
 
 ## Streamlit Web Application
 
-The trained Machine Learning model has been integrated into an interactive Streamlit application.
+The trained machine learning model was integrated into a Streamlit web application.
 
-Users can provide the following passenger information:
+Users can enter passenger details such as:
 
 - Passenger Class
 - Age
@@ -172,20 +180,9 @@ Users can provide the following passenger information:
 - Sex
 - Port of Embarkation
 
-The application processes the input and returns the predicted survival outcome.
+The application processes the entered information and predicts whether the passenger is likely to survive.
 
 ## Workflow
-
- **Data Collection** – Titanic dataset is collected and explored.
- **Data Preprocessing** – Missing values are handled and categorical features are encoded.
- **Train-Test Split** – Dataset is divided into training and testing data.
- **Model Training** – Different classification models are trained.
- **Model Evaluation** – Models are compared based on accuracy.
- **Prediction** – The best model predicts passenger survival.
- **Deployment** – The project is deployed using Streamlit.
-
-
- 
 
 ```text
 Titanic Dataset
@@ -209,7 +206,7 @@ Model Training
  ┌───────────────────────────────┐
  │ Logistic Regression           │
  │ Decision Tree                 │
- │ Random Forest                │
+ │ Random Forest                 │
  │ Gradient Boosting             │
  └───────────────────────────────┘
        ↓
@@ -226,9 +223,7 @@ Survival Prediction
 Streamlit Web Application
        ↓
 Deployment on Streamlit Cloud
-
----
-
+```
 
 ## Author
 
@@ -245,7 +240,8 @@ Learning application.
 
 - GitHub: https://github.com/Naina137
 - LinkedIn: https://www.linkedin.com/in/naina-kumari-06373132b
+- 
 
-This project reflects my interest in applying Data Science and Machine Learning to real-world problems.
+## Project Conclusion
 
- Through this project, I explored the complete ML lifecycle, from data preprocessing and analysis to model development, evaluation, and deployment.
+This project demonstrates the complete Machine Learning workflow, from data preprocessing and exploratory analysis to model training, evaluation and deployment using Streamlit.
