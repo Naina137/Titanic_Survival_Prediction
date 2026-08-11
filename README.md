@@ -105,15 +105,15 @@ Exploratory Data Analysis was performed to understand passenger characteristics 
 
 ### Survival Distribution
 
-![Survival Distribution](images/survival_distribution.png)
+![Survival Distribution](survival_distribution.png)
 
 ### Survival by Gender
 
-![Survival by Gender](images/survival_gender.png)
+![Survival by Gender](survival_gender.png)
 
 ### Survival by Passenger Class
 
-![Survival by Passenger Class](images/survival_class.png)
+![Survival by Passenger Class](survival_class.png)
 
 ## Key Findings
 
@@ -163,6 +163,14 @@ The models were evaluated using:
 - Recall
 - F1-Score
 - Confusion Matrix
+
+- ### Random Forest Confusion Matrix
+
+![Random Forest Confusion Matrix](random_forest_cm.png)
+
+### Logistic Regression Confusion Matrix
+
+![Logistic Regression Confusion Matrix](logistic_regression_cm.png)
 
 Model accuracy was compared to identify the best-performing classification model.
 
