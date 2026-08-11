@@ -79,6 +79,8 @@ The project uses the Titanic passenger dataset.
 ---
 
 
+
+
 Titanic_Survival_Prediction/
 │
 ├── data/
@@ -97,6 +99,8 @@ Titanic_Survival_Prediction/
 ├── model.pkl
 ├── requirements.txt
 └── README.md
+
+
 
 ## Exploratory Data Analysis
 
@@ -183,7 +187,7 @@ The application processes the input and returns the predicted survival outcome.
  **Deployment** – The project is deployed using Streamlit.
 
 
- 
+ ---
 
 Titanic Dataset
        ↓
@@ -223,6 +227,9 @@ Survival Prediction
 Streamlit Web Application
        ↓
 Deployment on Streamlit Cloud
+
+---
+
 
 ## Author
 
