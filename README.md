@@ -78,6 +78,26 @@ The project uses the Titanic passenger dataset.
 
 ---
 
+
+Titanic_Survival_Prediction/
+│
+├── data/
+│   └── train.csv
+│
+├── images/
+│   ├── streamlit_app.png
+│   ├── survival_distribution.png
+│   ├── survival_gender.png
+│   ├── survival_class.png
+│   ├── random_forest_cm.png
+│   └── logistic_regression_cm.png
+│
+├── Titanic_Survival_Prediction.ipynb
+├── app.py
+├── model.pkl
+├── requirements.txt
+└── README.md
+
 ## Exploratory Data Analysis
 
 Exploratory Data Analysis was performed to understand passenger characteristics and identify patterns associated with survival.
@@ -152,37 +172,15 @@ Users can provide the following passenger information:
 
 The application processes the input and returns the predicted survival outcome.
 
-### Live Application
+## Workflow
 
-https://titanicsurvivalprediction-ioudftgjjda28fku2kcgu8.streamlit.app
-
----
-
-## Project Structure
-
-```text
-Titanic_Survival_Prediction/
-│
-├── Titanic_Survival_Prediction.ipynb
-├── app.py
-├── model.pkl
-├── requirements.txt
-├── README.md
-│
-├── data/
-│   └── data/
-│       └── train.csv
-│
-├── notebook/
-│
-└── images/
-    ├── streamlit_app.png
-    ├── survival_distribution.png
-    ├── survival_gender.png
-    ├── survival_class.png
-    ├── random_forest_cm.png
-    └── logistic_regression_cm.png
-
+ **Data Collection** – Titanic dataset is collected and explored.
+ **Data Preprocessing** – Missing values are handled and categorical features are encoded.
+ **Train-Test Split** – Dataset is divided into training and testing data.
+ **Model Training** – Different classification models are trained.
+ **Model Evaluation** – Models are compared based on accuracy.
+ **Prediction** – The best model predicts passenger survival.
+ **Deployment** – The project is deployed using Streamlit.
 
 Dataset
    |
