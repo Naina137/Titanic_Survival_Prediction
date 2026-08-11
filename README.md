@@ -182,6 +182,8 @@ Titanic_Survival_Prediction/
     ├── survival_class.png
     ├── random_forest_cm.png
     └── logistic_regression_cm.png
+
+
 Dataset
    |
    v
@@ -234,4 +236,6 @@ Learning application.
 - GitHub: https://github.com/Naina137
 - LinkedIn: https://www.linkedin.com/in/naina-kumari-06373132b
 
-This project reflects my interest in applying Data Science and Machine Learning to real-world problems. Through this project, I explored the complete ML lifecycle, from data preprocessing and analysis to model development, evaluation, and deployment.
+This project reflects my interest in applying Data Science and Machine Learning to real-world problems.
+
+ Through this project, I explored the complete ML lifecycle, from data preprocessing and analysis to model development, evaluation, and deployment.
