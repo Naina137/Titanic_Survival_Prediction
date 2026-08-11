@@ -45,44 +45,14 @@ st.write(
 
 st.divider()
 
-
 @st.cache_data
 def load_data():
-    import seaborn as sns
-    return sns.load_dataset("titanic")
+    return pd.read_csv("data/train.csv")
 
 
-try:
-    df = load_data()
+df = load_data()
 
-except Exception:
-    st.error("The Titanic dataset could not be loaded.")
-
-    uploaded_file = st.file_uploader(
-        "Upload Titanic CSV Dataset",
-        type=["csv"]
-    )
-
-    if uploaded_file is not None:
-        df = pd.read_csv(uploaded_file)
-    else:
-        st.stop()
-
-
-st.subheader("Predict Passenger Survival")
-
-st.write(
-    "Enter the passenger details below to get a survival prediction."
-)
-
-features = [
-    "pclass",
-    "sex",
-    "age",
-    "sibsp",
-    "parch",
-    "fare",
-    "embarked"
+    
 ]
 
 target = "survived"
