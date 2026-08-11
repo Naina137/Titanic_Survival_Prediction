@@ -1,5 +1,7 @@
+import os
 import streamlit as st
 import pandas as pd
+import matplotlib.pyplot as plt
 
 from sklearn.model_selection import train_test_split
 from sklearn.compose import ColumnTransformer
@@ -11,7 +13,11 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 
-from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.metrics import (
+    accuracy_score,
+    classification_report,
+    confusion_matrix
+)
 
 
 # ============================================================
@@ -31,7 +37,7 @@ st.set_page_config(
 st.title("Titanic Survival Prediction")
 
 st.write(
-    "A Machine Learning application that predicts whether "
+    "This project uses Machine Learning to predict whether "
     "a Titanic passenger survived based on passenger information."
 )
 
@@ -42,18 +48,19 @@ st.divider()
 # ABOUT TITANIC
 # ============================================================
 
-st.header("About the Titanic")
+st.subheader("About the Titanic")
 
 st.write(
     "The RMS Titanic was a British passenger liner operated by "
-    "the White Star Line. During its maiden voyage in April 1912, "
-    "the ship struck an iceberg in the North Atlantic and sank."
+    "the White Star Line. During its maiden voyage from Southampton "
+    "to New York in April 1912, the ship struck an iceberg in the "
+    "North Atlantic Ocean and sank."
 )
 
 st.write(
     "This project uses passenger information such as passenger "
     "class, sex, age, family members, fare and port of embarkation "
-    "to predict passenger survival."
+    "to train classification models."
 )
 
 st.divider()
@@ -65,47 +72,84 @@ st.divider()
 
 @st.cache_data
 def load_data():
-    return pd.read_csv("data/train.csv")
+
+    possible_paths = [
+        "data/train.csv",
+        "./data/train.csv",
+        "train.csv",
+        "./train.csv"
+    ]
+
+    for path in possible_paths:
+
+        if os.path.exists(path):
+
+            try:
+                data = pd.read_csv(path)
+
+                if not data.empty:
+                    return data
+
+            except Exception:
+                pass
+
+    return None
 
 
-try:
-    df = load_data()
+df = load_data()
 
-except Exception:
+
+# ============================================================
+# DATASET ERROR HANDLING
+# ============================================================
+
+if df is None:
+
     st.error(
-        "Dataset could not be loaded. "
-        "Please check that data/train.csv exists."
+        "Titanic dataset could not be found. "
+        "Please make sure train.csv is inside the data folder."
     )
+
     st.stop()
 
 
 # ============================================================
-# CLEAN COLUMN NAMES
+# DATASET OVERVIEW
 # ============================================================
 
-df.columns = df.columns.str.strip()
+st.subheader("Dataset Overview")
+
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    st.metric(
+        "Total Rows",
+        df.shape[0]
+    )
+
+with col2:
+    st.metric(
+        "Total Columns",
+        df.shape[1]
+    )
+
+with col3:
+    st.metric(
+        "Missing Values",
+        int(df.isnull().sum().sum())
+    )
+
+
+with st.expander("View Dataset"):
+
+    st.dataframe(
+        df.head(20),
+        use_container_width=True
+    )
 
 
 # ============================================================
-# COLUMN MAPPING
-# ============================================================
-
-column_mapping = {
-    "Pclass": "pclass",
-    "Sex": "sex",
-    "Age": "age",
-    "SibSp": "sibsp",
-    "Parch": "parch",
-    "Fare": "fare",
-    "Embarked": "embarked",
-    "Survived": "survived"
-}
-
-df = df.rename(columns=column_mapping)
-
-
-# ============================================================
-# FEATURES AND TARGET
+# FEATURES
 # ============================================================
 
 features = [
@@ -121,6 +165,10 @@ features = [
 target = "survived"
 
 
+# ============================================================
+# CHECK REQUIRED COLUMNS
+# ============================================================
+
 missing_columns = [
     column
     for column in features + [target]
@@ -128,52 +176,34 @@ missing_columns = [
 ]
 
 if missing_columns:
+
     st.error(
         f"Required columns are missing: {missing_columns}"
     )
+
     st.stop()
 
 
+# ============================================================
+# DATA PREPARATION
+# ============================================================
+
 X = df[features].copy()
+
 y = df[target].copy()
 
 
-# ============================================================
-# DATASET OVERVIEW
-# ============================================================
+# Remove rows where target is missing
 
-st.header("Dataset Overview")
+valid_rows = y.notna()
 
-col1, col2, col3 = st.columns(3)
+X = X.loc[valid_rows]
 
-with col1:
-    st.metric(
-        "Total Passengers",
-        df.shape[0]
-    )
-
-with col2:
-    st.metric(
-        "Total Features",
-        len(features)
-    )
-
-with col3:
-    st.metric(
-        "Missing Values",
-        int(df[features].isnull().sum().sum())
-    )
-
-
-with st.expander("View Dataset"):
-    st.dataframe(
-        df.head(20),
-        use_container_width=True
-    )
+y = y.loc[valid_rows]
 
 
 # ============================================================
-# DATA PREPROCESSING
+# NUMERIC AND CATEGORICAL FEATURES
 # ============================================================
 
 numeric_features = [
@@ -189,6 +219,10 @@ categorical_features = [
     "embarked"
 ]
 
+
+# ============================================================
+# PREPROCESSING
+# ============================================================
 
 numeric_pipeline = Pipeline(
     steps=[
@@ -292,6 +326,7 @@ models = {
 # ============================================================
 
 trained_models = {}
+
 model_scores = {}
 
 
@@ -325,6 +360,7 @@ for model_name, model in models.items():
     )
 
     trained_models[model_name] = pipeline
+
     model_scores[model_name] = accuracy
 
 
@@ -347,12 +383,134 @@ best_accuracy = model_scores[
 
 
 # ============================================================
+# PASSENGER PREDICTION
+# ============================================================
+
+st.divider()
+
+st.header("Predict Passenger Survival")
+
+st.write(
+    "Enter passenger information below. "
+    "The best-performing model will generate the prediction."
+)
+
+
+with st.form("prediction_form"):
+
+    passenger_class = st.selectbox(
+        "Passenger Class",
+        [1, 2, 3]
+    )
+
+    age = st.number_input(
+        "Age",
+        min_value=0.0,
+        max_value=100.0,
+        value=25.0,
+        step=1.0
+    )
+
+    siblings = st.number_input(
+        "Number of Siblings/Spouses",
+        min_value=0,
+        max_value=10,
+        value=0,
+        step=1
+    )
+
+    parents_children = st.number_input(
+        "Number of Parents/Children",
+        min_value=0,
+        max_value=10,
+        value=0,
+        step=1
+    )
+
+    fare = st.number_input(
+        "Fare",
+        min_value=0.0,
+        max_value=600.0,
+        value=30.0,
+        step=1.0
+    )
+
+    sex = st.selectbox(
+        "Sex",
+        [
+            "female",
+            "male"
+        ]
+    )
+
+    embarked = st.selectbox(
+        "Port of Embarkation",
+        [
+            "S",
+            "C",
+            "Q"
+        ]
+    )
+
+    predict_button = st.form_submit_button(
+        "Predict Survival",
+        use_container_width=True
+    )
+
+
+# ============================================================
+# PREDICTION RESULT
+# ============================================================
+
+if predict_button:
+
+    input_data = pd.DataFrame(
+        {
+            "pclass": [passenger_class],
+            "sex": [sex],
+            "age": [age],
+            "sibsp": [siblings],
+            "parch": [parents_children],
+            "fare": [fare],
+            "embarked": [embarked]
+        }
+    )
+
+    prediction = best_model.predict(
+        input_data
+    )[0]
+
+    probabilities = best_model.predict_proba(
+        input_data
+    )[0]
+
+    survival_probability = probabilities[1] * 100
+
+    if prediction == 1:
+
+        st.success(
+            f"Prediction: SURVIVED | "
+            f"Survival Probability: "
+            f"{survival_probability:.2f}%"
+        )
+
+    else:
+
+        st.error(
+            f"Prediction: DID NOT SURVIVE | "
+            f"Survival Probability: "
+            f"{survival_probability:.2f}%"
+        )
+
+
+# ============================================================
 # MODEL PERFORMANCE
 # ============================================================
 
 st.divider()
 
-st.header("Model Performance")
+st.subheader("Model Performance")
+
 
 results = pd.DataFrame(
     {
@@ -383,155 +541,50 @@ st.success(
 )
 
 
-st.subheader(
-    "Model Accuracy Comparison"
+# ============================================================
+# ACCURACY CHART
+# ============================================================
+
+st.subheader("Model Accuracy Comparison")
+
+
+fig, ax = plt.subplots(
+    figsize=(9, 4)
 )
 
-st.bar_chart(
-    results.set_index("Model")["Accuracy (%)"]
+ax.bar(
+    results["Model"],
+    results["Accuracy (%)"]
 )
 
-
-# ============================================================
-# PASSENGER PREDICTION
-# ============================================================
-
-st.divider()
-
-st.header("Passenger Survival Prediction")
-
-st.write(
-    "Enter passenger details below to generate "
-    "a survival prediction."
+ax.set_xlabel(
+    "Machine Learning Model"
 )
 
+ax.set_ylabel(
+    "Accuracy (%)"
+)
 
-with st.form(
-    "prediction_form"
-):
+ax.set_title(
+    "Titanic Survival Model Accuracy"
+)
 
-    passenger_class = st.selectbox(
-        "Passenger Class",
-        [1, 2, 3]
-    )
+plt.xticks(
+    rotation=15,
+    ha="right"
+)
 
-    sex = st.selectbox(
-        "Sex",
-        ["female", "male"]
-    )
+plt.tight_layout()
 
-    age = st.number_input(
-        "Age",
-        min_value=0.0,
-        max_value=100.0,
-        value=25.0,
-        step=1.0
-    )
-
-    siblings = st.number_input(
-        "Number of Siblings / Spouses",
-        min_value=0,
-        max_value=10,
-        value=0,
-        step=1
-    )
-
-    parents_children = st.number_input(
-        "Number of Parents / Children",
-        min_value=0,
-        max_value=10,
-        value=0,
-        step=1
-    )
-
-    fare = st.number_input(
-        "Passenger Fare",
-        min_value=0.0,
-        max_value=600.0,
-        value=30.0,
-        step=1.0
-    )
-
-    embarked = st.selectbox(
-        "Port of Embarkation",
-        ["S", "C", "Q"]
-    )
-
-    predict_button = st.form_submit_button(
-        "Predict Survival",
-        use_container_width=True
-    )
-
-
-# ============================================================
-# PREDICTION RESULT
-# ============================================================
-
-if predict_button:
-
-    input_data = pd.DataFrame(
-        {
-            "pclass": [
-                passenger_class
-            ],
-            "sex": [
-                sex
-            ],
-            "age": [
-                age
-            ],
-            "sibsp": [
-                siblings
-            ],
-            "parch": [
-                parents_children
-            ],
-            "fare": [
-                fare
-            ],
-            "embarked": [
-                embarked
-            ]
-        }
-    )
-
-
-    prediction = best_model.predict(
-        input_data
-    )[0]
-
-
-    probability = (
-        best_model.predict_proba(
-            input_data
-        )[0][1] * 100
-    )
-
-
-    if prediction == 1:
-
-        st.success(
-            f"Prediction: SURVIVED\n\n"
-            f"Survival Probability: "
-            f"{probability:.2f}%"
-        )
-
-    else:
-
-        st.error(
-            f"Prediction: DID NOT SURVIVE\n\n"
-            f"Survival Probability: "
-            f"{probability:.2f}%"
-        )
+st.pyplot(fig)
 
 
 # ============================================================
 # CONFUSION MATRIX
 # ============================================================
 
-st.divider()
+st.subheader("Confusion Matrix")
 
-st.header("Confusion Matrix")
 
 best_predictions = best_model.predict(
     X_test
@@ -543,75 +596,40 @@ cm = confusion_matrix(
 )
 
 
-cm_df = pd.DataFrame(
-    cm,
-    index=[
-        "Actual: Not Survived",
-        "Actual: Survived"
-    ],
-    columns=[
-        "Predicted: Not Survived",
-        "Predicted: Survived"
+fig2, ax2 = plt.subplots(
+    figsize=(6, 5)
+)
+
+ax2.imshow(cm)
+
+ax2.set_title(
+    f"Confusion Matrix - {best_model_name}"
+)
+
+ax2.set_xlabel(
+    "Predicted"
+)
+
+ax2.set_ylabel(
+    "Actual"
+)
+
+ax2.set_xticks(
+    [0, 1]
+)
+
+ax2.set_yticks(
+    [0, 1]
+)
+
+ax2.set_xticklabels(
+    [
+        "Not Survived",
+        "Survived"
     ]
 )
 
-
-st.dataframe(
-    cm_df,
-    use_container_width=True
-)
-
-
-# ============================================================
-# PROJECT DETAILS
-# ============================================================
-
-st.divider()
-
-st.header("Project Details")
-
-st.markdown(
-    """
-**Dataset:** Titanic Passenger Dataset
-
-**Target Variable:**
-- 0 = Did not survive
-- 1 = Survived
-
-**Features Used:**
-- Passenger Class
-- Sex
-- Age
-- Siblings / Spouses
-- Parents / Children
-- Fare
-- Port of Embarkation
-
-**Machine Learning Models:**
-- Logistic Regression
-- Decision Tree
-- Random Forest
-- Gradient Boosting
-
-**Data Preprocessing:**
-- Missing value handling
-- Numerical feature scaling
-- Categorical feature encoding
-- Train/Test split
-
-**Deployment:**
-- Streamlit
-- Streamlit Cloud
-"""
-)
-
-
-# ============================================================
-# FOOTER
-# ============================================================
-
-st.divider()
-
-st.caption(
-    "Titanic Survival Prediction | Machine Learning + Streamlit"
-)
+ax2.set_yticklabels(
+    [
+        "Not Survived",
+        "Survived"
