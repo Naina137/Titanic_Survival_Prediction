@@ -632,4 +632,4 @@ ax2.set_xticklabels(
 ax2.set_yticklabels(
     [
         "Not Survived",
-        "Survived"
+        "Survived"])
