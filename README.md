@@ -1,6 +1,6 @@
 # Titanic Survival Prediction
 
-> An end-to-end Machine Learning project that predicts whether a Titanic passenger is likely to survive based on passenger characteristics.
+> A Machine Learning project that predicts whether a passenger on the Titanic survived or did not survive based on passenger information.
 
 ## Live Demo
 
@@ -182,41 +182,47 @@ The application processes the input and returns the predicted survival outcome.
  **Prediction** – The best model predicts passenger survival.
  **Deployment** – The project is deployed using Streamlit.
 
-Dataset
-   |
-   v
-Data Cleaning and Preprocessing
-   |
-   v
-Exploratory Data Analysis
-   |
-   v
-Feature Engineering
-   |
-   v
+
+ 
+
+Titanic Dataset
+       ↓
+Data Collection
+       ↓
+Data Understanding & Exploration
+       ↓
+Data Preprocessing
+       ↓
+Missing Value Handling
+       ↓
+Categorical Feature Encoding
+       ↓
+Numerical Feature Scaling
+       ↓
 Train-Test Split
-   |
-   v
+       ↓
 Model Training
-   |
-   +-----------------------+
-   |                       |
-   v                       v
-Logistic Regression    Random Forest
-   |                       |
-   +-----------+-----------+
-               |
-               v
-        Model Evaluation
-               |
-               v
-          Model Saving
-               |
-               v
-      Streamlit Application
-               |
-               v
-           Deployment
+       ↓
+ ┌───────────────────────────────┐
+ │ Logistic Regression           │
+ │ Decision Tree                 │
+ │ Random Forest                │
+ │ Gradient Boosting            │
+ └───────────────────────────────┘
+       ↓
+Model Evaluation
+       ↓
+Accuracy Comparison
+       ↓
+Select Best Performing Model
+       ↓
+Passenger Details as Input
+       ↓
+Survival Prediction
+       ↓
+Streamlit Web Application
+       ↓
+Deployment on Streamlit Cloud
 
 ## Author
 
