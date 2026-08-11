@@ -97,7 +97,7 @@ Titanic_Survival_Prediction/
 ├── model.pkl
 ├── requirements.txt
 └── README.md
-
+---
 
 
 ## Exploratory Data Analysis
@@ -185,8 +185,7 @@ The application processes the input and returns the predicted survival outcome.
  **Deployment** – The project is deployed using Streamlit.
 
 
- ---
-
+ 
 
 ```text
 Titanic Dataset
